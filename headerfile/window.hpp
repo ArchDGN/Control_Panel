@@ -5,9 +5,7 @@
     #include <SDL2/SDL.h>
 
     #include "../headerfile/mouse.hpp"
-    #include "../headerfile/imageloader.hpp"
     #include "../headerfile/keyboard.hpp"
-    #include "../headerfile/draw.hpp"
 
     void get_error (std::string error, std::string error_log, int code);
 
@@ -15,9 +13,10 @@
     {
     private:
 
-        const int *_window_width;
-        const int *_window_height;
+        int *_window_width;
+        int *_window_height;
         const std::string *_prog_name;
+        SDL_Surface* _ico;
 
         int mouse_pos_x;
         int mouse_pos_y;
@@ -27,16 +26,14 @@
 
         SDL_Window *_prog_window;
         SDL_Renderer *_renderer;
+        SDL_Rect _rect;
 
     public:
         window() = delete;
-        window(const int *window_width, const int *window_height, const std::string *prog_name);
+        window(int *window_width, int *window_height, const std::string *prog_name, SDL_Surface* ico);
         ~window();
 
         void run_program();
-
-        void get_mouse_for_texture(mouse &mouse_control, imageloader &texture_background, draw &draw_grid);
-        void get_keyboard_for_texture(keyboard &keyboard_control, imageloader &texture_background, draw &draw_grid);
     };
     
 

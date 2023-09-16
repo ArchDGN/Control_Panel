@@ -1,4 +1,4 @@
-LIBFLAGS = --std=c++23 -Wall -Wextra -lSDL2main -lSDL2 -lSDL2_image
+LIBFLAGS = --std=c++23 -Wall -Wextra -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
 
 CC = g++
 

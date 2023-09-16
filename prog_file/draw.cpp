@@ -1,103 +1,161 @@
 #include <iostream>
+#include <cmath>
 #include <SDL2/SDL.h>
 
 #include "../headerfile/draw.hpp"
 
-draw::draw(SDL_Renderer *renderer, const int *w, const int *h) : _renderer(renderer), _window_width(w), _window_height(h)
+draw::draw(SDL_Renderer *renderer, SDL_Rect *rect, int *w, int *h, Square_Color fc) : _renderer(renderer), _rect(rect), _window_width(w), _window_height(h), _font_color(fc)
 {
     set_color(Square_Color::NONE);
-
-    _zoom_point_x = *_window_width / 2;      // Initialisation des trois variable pour le zoom
-    _zoom_point_y = *_window_height / 2;     //    Les cooordonné x,y du point visé
-    _zoom_factor = 1;                   //    Le facteur de zoom 1 = pas de zoom, 40 maximum du zoom
-    default_zoom();
 }
 void draw::set_color(Square_Color color)
 {
     switch (color)
     {
-    case Square_Color::Red:
-        SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 255);
-        break;
-    case Square_Color::Blue:
-        SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 255);
-        break;
-    
-    default:
-        SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
-        break;
+        case Square_Color::Red:
+            SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 255);
+            break;
+        case Square_Color::Blue:
+            SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 255);
+            break;
+        case Square_Color::Gray1:
+            SDL_SetRenderDrawColor(_renderer, 20, 20, 20, 255);
+            break;
+        case Square_Color::Gray2:
+            SDL_SetRenderDrawColor(_renderer, 15, 15, 15, 255);
+            break;
+        case Square_Color::LightGray1:
+            SDL_SetRenderDrawColor(_renderer, 100, 100, 100, 255);
+            break;
+
+        default:
+            SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
+            break;
     }
 }
 
-void draw::draw_grid()
+void draw::draw_font()
 {
-    draw_square( 100, 100, 100, 100, Square_Color::Red);
+    int *w = _window_width;
+    int *h = _window_height;
+    draw_rectangle(0, 0, *w, *h / 10, *h, Square_Color::Gray2);
+    draw_rectangle(0, 0, *w / 8, *h, *w, Square_Color::Gray2);
+    draw_rectangle(*w - *w / 9, *h - *h / 4, *w, *h, *w, Square_Color::Gray2);
 
+    draw_rectangle(0, 0, *w, *h, 2, Square_Color::LightGray1);
+    draw_rectangle(0, 0, *w, *h / 10, 2, Square_Color::LightGray1);
+    draw_rectangle(0, 0, *w / 8, *h, 2, Square_Color::LightGray1);
+    draw_rectangle(*w - *w / 9, *h - *h / 4, *w, *h, 2, Square_Color::LightGray1);
+
+    draw_circle_x_square(5, 5, *w / 8 - 10, *h / 10 - 10, 20000, Square_Color::NONE);
+
+    set_font_color();
 }
 
-void draw::draw_square(int x1, int y1, int width, int height, Square_Color color)
+void draw::draw_rectangle(int x, int y, int width, int height, int radius, Square_Color color)
 {
+    /*
+    x : coord d'origine x
+    y : coord d'origine y
+    width : longueur
+    height : largeur
+    radius : épaisseur de la bordure, si radius == width ou radius == height alors le rectangle est plein
+    Square_Color : couleur
+    */
+
     set_color(color);
 
-    SDL_RenderDrawLine(_renderer, x1, y1, x1 + width, y1);    // x1 y1 x2 y2    Ligne du haut
-    SDL_RenderDrawLine(_renderer, x1, y1 + height, x1 + width, y1 + height);    // x1 y1 x2 y2  Ligne du bas
+    if (radius > width / 2)
+        radius = width / 2;
+    if (radius > height / 2)
+        radius = height / 2;
 
-    SDL_RenderDrawLine(_renderer, x1, y1, x1, y1 + height);    // x1 y1 x2 y2   Cote gauche
-    SDL_RenderDrawLine(_renderer, x1 + width, y1, x1 + width, y1 + height);    // x1 y1 x2 y2   Cote droit
-
-}
-
-
-void draw::grid_set_zoom_point(int x, int y)
-{
-    if (_zoom_factor == 1)  // Pas de zoom
+    for (int i = 1; i <= radius; i++)
     {
-        _zoom_point_x = float(x);     // Place le point de zoom sur les coordonnées de la souris
-        _zoom_point_y = float(y);     //
-
-    } else  // Si la fenetre est deja zoomer alors le zoom est remis a 1
-    {
-        _zoom_factor = 1;
-        default_zoom();
+        _rect->x = x + i;
+        _rect->y = y + i;
+        _rect->w = width - 2*i;
+        _rect->h = height - 2*i;
+        SDL_RenderDrawRect(_renderer, _rect);
     }
-    
+
+    set_font_color();
 }
 
-void draw::grid_zoom_in()
+void draw::draw_circle(int x, int y, int min_radius, int max_radius, int min_angle, int max_angle, Square_Color color)
 {
-    if (_zoom_factor < 41)
-    {
-        _zoom_factor++;
+    /*
+    x : coord d'origine x
+    y : coord d'origine y
+    min_radius : rayon du premier cercle
+    max_radius : rayon du dernier cercle dessiner en px
+    min_angle : angle en degre qui definie l'air du cercle a dessiner selon le cercle trigo
+    mas_angle : angle en degre qui definie l'arriver sur le cercle trigo
+    Square_Color : couleur
+    */
 
-        zoom_value.x -= round(_zoom_point_x / 10);      // On deplace les coordonne d'origine x, y de l'image en fonction de la position de la souris
-        zoom_value.y -= round(_zoom_point_y / 10);      // Par rexemple pour un zoom en bas a droite l'image double de taille et est deplace en -360x, -180y
-                                                        // Par rexemple pour un zoom en haut a gauche l'image double de taille et est deplace en 0x, 0y
+    if (min_radius >= max_radius)
+        min_radius = max_radius-1;
 
-        zoom_value.w += *_window_width / 10;         // Zoom avec une force de 10 donc
-        zoom_value.h += *_window_height / 10;        //      lageur et hauteur / 10
+    set_color(color);
 
-    }
-}
-
-void draw::grid_zoom_out()
-{
-    if (_zoom_factor > 1)
-    {
-        _zoom_factor--;
-
-        zoom_value.x += round(_zoom_point_x / 10);      // On deplace les coordonne d'origine x, y de l'image en fonction de la position de la souris
-        zoom_value.y += round(_zoom_point_y / 10);      // Par rexemple pour un zoom en bas a droite l'image double de taille et est deplace en -360x, -180y
-                                                        // Par rexemple pour un zoom en haut a gauche l'image double de taille et est deplace en 0x, 0y
-
-        zoom_value.w -= *_window_width / 10;         // Zoom avec une force de 10 donc
-        zoom_value.h -= *_window_height / 10;        //      lageur et hauteur / 10
+    _rect->w = 0;
+    _rect->h = 0;
+    for (int a = min_radius; a < max_radius; a++) {
+        for (int i = min_angle; i < max_angle; i++) {
+            _rect->x = x + a * cos(i * M_PI / 180);
+            _rect->y = y - a * sin(i * M_PI / 180);
+            SDL_RenderDrawRect(_renderer, _rect);
+        }
     }
 }
 
-void draw::default_zoom()
+void draw::draw_circle_x_square(int x, int y, int width, int height, int radius, Square_Color color)
 {
-    zoom_value.x = 0;
-    zoom_value.y = 0;
-    zoom_value.w = *_window_width;
-    zoom_value.h = *_window_height;
+    /*
+    x : coord d'origine x
+    y : coord d'origine y
+    width : longueur
+    height : largeur
+    radius : épaisseur de la bordure, si radius == width ou radius == height alors le rectangle est plein
+    Square_Color : couleur
+    */
+
+    if (height > width)
+        height = width;
+
+    if (radius > height / 2)
+        radius = height /2;
+    radius = height / 2 - radius;
+
+    set_color(color);
+    _rect->w = 0;
+    _rect->h = 0;
+    for (int a = radius; a <= height / 2; a++) {
+        for (int i = 90; i < 271; i++) {
+            _rect->x = x + height/2 + a * cos(i * M_PI / 180);
+            _rect->y = y + height/2 - a * sin(i * M_PI / 180);
+            if (i == 90 || i == 270)
+            {
+                _rect->w = width - height + 1;
+                _rect->x-=1;
+            }
+
+            SDL_RenderDrawRect(_renderer, _rect);
+            _rect->w = 0;
+        }
+    }
+
+    for (int a = radius; a <= height / 2; a++) {
+        for (int i = -90; i < 91; i++) {
+            _rect->x = x + width - height/2 + a * cos(i * M_PI / 180);
+            _rect->y = y + height/2 - a * sin(i * M_PI / 180);
+            SDL_RenderDrawRect(_renderer, _rect);
+        }
+    }
+}
+
+void draw::set_font_color()
+{
+    set_color(_font_color);
 }
