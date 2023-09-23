@@ -1,20 +1,26 @@
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
 #include "../headerfile/window.hpp"
 #include "../headerfile/draw.hpp"
 #include "../headerfile/mouse.hpp"
 #include "../headerfile/keyboard.hpp"
+#include "../headerfile/text.hpp"
+#include "../headerfile/system_exec.hpp"
 
 void window::run_program()
 {
 
     mouse mouse_control{};          // Init de la souris
     keyboard keyboard_control{};    // Init du clavier
+
+    std::unique_ptr<text> text1(new text{_window_width, _window_height, "TimesNewRomance.ttf", 50, Square_Color::White, 255, _renderer});    // Init du text
+
+    std::unique_ptr<system_exec> system_exec1(new system_exec);    // Init du system_exec
 
     draw draw_on_window{_renderer, &_rect, _window_width, _window_height, Square_Color::Gray1};
 
@@ -38,18 +44,8 @@ void window::run_program()
 
             mouse_control.get_position(_event, &mouse_pos_x, &mouse_pos_y);         // Attibut au variable mouse_pos_x et mouse_pos_y la position de la souris
 
-            draw_on_window.draw_font();
-
-            TTF_Font *TimesNewRomance = TTF_OpenFont("TimesNewRomance.ttf", 120);
-            SDL_Color White = {255, 255, 255, 255};
-            SDL_Surface* surfaceMessage = TTF_RenderText_Solid(TimesNewRomance, "put your text here", White);
-            SDL_Texture* Message = SDL_CreateTextureFromSurface(_renderer, surfaceMessage);
-            SDL_Rect Message_rect; //create a rect
-            Message_rect.x = 500;  //controls the rect's x coordinate
-            Message_rect.y = 500; // controls the rect's y coordinte
-            Message_rect.w = 200; // controls the width of the rect
-            Message_rect.h = 50; // controls the height of the rect
-            SDL_RenderCopy(_renderer, Message, NULL, &Message_rect);
+            draw_on_window.draw_font();    // Affiche le font
+            draw_on_window.draw_text(text1, system_exec1);    // Affiche le text
 
             SDL_RenderPresent(_renderer);   // Affiche le render
 

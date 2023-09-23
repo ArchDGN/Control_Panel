@@ -1,8 +1,10 @@
 #include <iostream>
 #include <cmath>
 #include <SDL2/SDL.h>
+#include <memory>
 
 #include "../headerfile/draw.hpp"
+#include "../headerfile/system_exec.hpp"
 
 draw::draw(SDL_Renderer *renderer, SDL_Rect *rect, int *w, int *h, Square_Color fc) : _renderer(renderer), _rect(rect), _window_width(w), _window_height(h), _font_color(fc)
 {
@@ -10,6 +12,9 @@ draw::draw(SDL_Renderer *renderer, SDL_Rect *rect, int *w, int *h, Square_Color 
 }
 void draw::set_color(Square_Color color)
 {
+
+    // Set la couleur du renderer
+
     switch (color)
     {
         case Square_Color::Red:
@@ -38,18 +43,33 @@ void draw::draw_font()
 {
     int *w = _window_width;
     int *h = _window_height;
+    // Dessine le rectangle du haut de la fenetre
     draw_rectangle(0, 0, *w, *h / 10, *h, Square_Color::Gray2);
+    // Dessine le rectangle a gauche de la fenetre
     draw_rectangle(0, 0, *w / 8, *h, *w, Square_Color::Gray2);
+    // Dessine le rectangle en bas a droite de la fenetre
     draw_rectangle(*w - *w / 9, *h - *h / 4, *w, *h, *w, Square_Color::Gray2);
 
+    // Dessine les contours des differents rectangles en gris clair
     draw_rectangle(0, 0, *w, *h, 2, Square_Color::LightGray1);
     draw_rectangle(0, 0, *w, *h / 10, 2, Square_Color::LightGray1);
     draw_rectangle(0, 0, *w / 8, *h, 2, Square_Color::LightGray1);
     draw_rectangle(*w - *w / 9, *h - *h / 4, *w, *h, 2, Square_Color::LightGray1);
 
+    // Dessine le rectangle arrondi en haut a gauche de la fenetre
     draw_circle_x_square(5, 5, *w / 8 - 10, *h / 10 - 10, 20000, Square_Color::NONE);
 
     set_font_color();
+}
+
+void draw::draw_text(std::unique_ptr<text> &text1, std::unique_ptr<system_exec> &system_exec1)
+{
+    // Dessine le texte
+    int *w = _window_width;
+    int *h = _window_height;
+
+    text1->draw_text(system_exec1->return_pwd(), *w / 8 + 10, *h / 20 - 20, *w - (*w / 8 + 10), 40, Text_Property::Revert_Cut_With_Points, Text_Property::Fit_Screen);
+
 }
 
 void draw::draw_rectangle(int x, int y, int width, int height, int radius, Square_Color color)
@@ -112,6 +132,8 @@ void draw::draw_circle(int x, int y, int min_radius, int max_radius, int min_ang
 
 void draw::draw_circle_x_square(int x, int y, int width, int height, int radius, Square_Color color)
 {
+    //Cette fonction dessine une rectange avec les bords arrondi
+
     /*
     x : coord d'origine x
     y : coord d'origine y
@@ -131,6 +153,8 @@ void draw::draw_circle_x_square(int x, int y, int width, int height, int radius,
     set_color(color);
     _rect->w = 0;
     _rect->h = 0;
+
+    // Dessine les 2 cercles
     for (int a = radius; a <= height / 2; a++) {
         for (int i = 90; i < 271; i++) {
             _rect->x = x + height/2 + a * cos(i * M_PI / 180);
