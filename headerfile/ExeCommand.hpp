@@ -1,8 +1,0 @@
-//
-// Created by dell_nicolas on 18/09/23.
-//
-
-#ifndef CONTROL_PANEL_EXECOMMAND_HPP
-#define CONTROL_PANEL_EXECOMMAND_HPP
-
-#endif //CONTROL_PANEL_EXECOMMAND_HPP
