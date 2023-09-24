@@ -1,10 +1,14 @@
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
 
 #include "../headerfile/system_exec.hpp"
 
 system_exec::system_exec()
 {
-    _pwd = exe("pwd");
+    refresh_pwd();
+    refresh_ls();
 }
 
 std::string system_exec::exe(std::string command)
@@ -31,8 +35,36 @@ std::string system_exec::exe(std::string command)
 void system_exec::refresh_pwd()
 {
     _pwd = exe("pwd");
+    _pwd_rewritten = _pwd;
+
+    _pwd_rewritten = _pwd.substr(0, _pwd.length() - 1); // Enlève le '\n' à la fin de la chaîne
+
+    std::string final = "";
+
+    std::istringstream iss(_pwd_rewritten);
+    std::vector<std::string> parsedStrings;
+
+    // Utilise un stringstream pour séparer la chaîne par les '/'
+    std::string word;
+    while (std::getline(iss, word, '/')) {
+        final = final + word + " > ";
+        if (!word.empty())
+            parsedStrings.push_back(word);
+    }
+
+    final = final.substr(0, final.length() - 3); // Enlève les 3 derniers caractères de la chaîne
+
+    _pwd_rewritten = final;
 }
-std::string system_exec::return_pwd()
+std::string system_exec::return_pwd(Command_Option option)
 {
+    if (option == Command_Option::Rewrite)
+        return _pwd_rewritten;
     return _pwd;
+}
+
+void system_exec::refresh_ls()
+{
+    _ls = exe("ls");
+    //std::cout << _ls << std::endl;
 }

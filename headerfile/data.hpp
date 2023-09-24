@@ -27,4 +27,11 @@
         NONE
     };
 
+    enum class Command_Option
+    {
+        Rewrite,
+
+        NONE
+    };
+
 #endif //CONTROL_PANEL_DATA_HPP

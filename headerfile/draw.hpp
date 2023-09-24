@@ -20,15 +20,15 @@
         draw(SDL_Renderer *renderer, SDL_Rect *rect, int *w, int *h, Square_Color fc);
         ~draw() = default;
 
-        void set_color(Square_Color color);
+        void set_color(Square_Color color, int alpha);
 
         void draw_font();
         void draw_text(std::unique_ptr<text> &text1, std::unique_ptr<system_exec> &system_exec1);
 
         void set_font_color();
-        void draw_rectangle(int x, int y, int width, int height, int radius, Square_Color color);
-        void draw_circle(int x, int y, int min_radius, int max_radius, int min_angle, int max_angle, Square_Color color);
-        void draw_circle_x_square(int x, int y, int width, int height, int radius, Square_Color color);
+        void draw_rectangle(int x, int y, int width, int height, int radius, Square_Color color, int alpha);
+        void draw_circle(int x, int y, int min_radius, int max_radius, int min_angle, int max_angle, Square_Color color, int alpha);
+        void draw_circle_x_square(int x, int y, int width, int height, int radius, Square_Color color, int alpha);
     };
 
 

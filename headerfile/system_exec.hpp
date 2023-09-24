@@ -4,10 +4,15 @@
 
     #include <string>
 
+    #include "../headerfile/data.hpp"
+
     class system_exec
     {
     private:
         std::string _pwd;
+        std::string _pwd_rewritten;
+
+        std::string _ls;
 
     public:
 
@@ -17,7 +22,9 @@
         std::string exe(std::string command);
 
         void refresh_pwd();
-        std::string return_pwd();
+        std::string return_pwd(Command_Option option);
+
+        void refresh_ls();
     };
 
 

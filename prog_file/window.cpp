@@ -11,6 +11,7 @@
 #include "../headerfile/keyboard.hpp"
 #include "../headerfile/text.hpp"
 #include "../headerfile/system_exec.hpp"
+#include "../headerfile/files_display.hpp"
 
 void window::run_program()
 {
@@ -22,7 +23,10 @@ void window::run_program()
 
     std::unique_ptr<system_exec> system_exec1(new system_exec);    // Init du system_exec
 
-    draw draw_on_window{_renderer, &_rect, _window_width, _window_height, Square_Color::Gray1};
+    std::unique_ptr<draw> draw_on_window(new draw{_renderer, &_rect, _window_width, _window_height, Square_Color::Gray1});
+    std::unique_ptr<draw> *draw = &draw_on_window;
+
+    files_display set_files_display{draw, _window_width, _window_height};
 
     while (!_quit)
     {
@@ -36,16 +40,20 @@ void window::run_program()
             SDL_RenderClear(_renderer);     // Efface l'affichade
             SDL_GetWindowSize(_prog_window, _window_width, _window_height);
 
-            draw_on_window.set_font_color();
+            draw_on_window->set_font_color();
 
+            /*
             keyboard_control.is_pressed(_event);    // Verifie si une touche est presse
             keyboard_control.is_released(_event);   // Verifie si une touche est relache
 
 
             mouse_control.get_position(_event, &mouse_pos_x, &mouse_pos_y);         // Attibut au variable mouse_pos_x et mouse_pos_y la position de la souris
+             */
 
-            draw_on_window.draw_font();    // Affiche le font
-            draw_on_window.draw_text(text1, system_exec1);    // Affiche le text
+            draw_on_window->draw_font();    // Affiche le font
+            draw_on_window->draw_text(text1, system_exec1);    // Affiche le text
+
+            set_files_display.display();
 
             SDL_RenderPresent(_renderer);   // Affiche le render
 
