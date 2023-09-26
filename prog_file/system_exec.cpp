@@ -9,6 +9,8 @@ system_exec::system_exec()
 {
     refresh_pwd();
     refresh_ls();
+    refresh_ls_directory();
+    refresh_ls_file();
 }
 
 std::string system_exec::exe(std::string command)
@@ -67,4 +69,16 @@ void system_exec::refresh_ls()
 {
     _ls = exe("ls");
     //std::cout << _ls << std::endl;
+}
+
+void system_exec::refresh_ls_directory()
+{
+    _ls_directory = exe("ls -d */");
+    //std::cout << _ls_directory << std::endl;
+}
+
+void system_exec::refresh_ls_file()
+{
+    _ls_file = exe("ls -p | grep -v /");
+    //std::cout << _ls_file << std::endl;
 }

@@ -13,6 +13,8 @@
         std::string _pwd_rewritten;
 
         std::string _ls;
+        std::string _ls_directory;
+        std::string _ls_file;
 
     public:
 
@@ -25,6 +27,8 @@
         std::string return_pwd(Command_Option option);
 
         void refresh_ls();
+        void refresh_ls_directory();
+        void refresh_ls_file();
     };
 
 
