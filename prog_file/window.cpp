@@ -1,35 +1,88 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <list>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <chrono>
+#include <thread>
 
 #include "../headerfile/window.hpp"
 #include "../headerfile/draw.hpp"
-#include "../headerfile/mouse.hpp"
-#include "../headerfile/keyboard.hpp"
-#include "../headerfile/text.hpp"
-#include "../headerfile/system_exec.hpp"
 #include "../headerfile/files_display.hpp"
 
 void window::run_program()
 {
+    //
+    // Cette partie charge les icones
+    //
 
+    // Creation de l'objet qui permet de charger les icones
+    std::unique_ptr<icon_loader> iconLoader1( new icon_loader{_renderer, _window_width, _window_height});
+    // Creation d'un pointeur qui pointe sur l'objet icon_loader
+    std::unique_ptr<icon_loader> *iconLoader_ptr = &iconLoader1;
+    // Creation d'une liste qui contient les icones
+    std::list<Image*> image_list_ptr;
+
+    // Ajout des icones dans la liste, directory
+    Image directory = iconLoader1->load_image("icon/directoryv2.png");
+    image_list_ptr.push_back(&directory);
+
+    // Ajout des icones dans la liste, file
+    Image file = iconLoader1->load_image("icon/filev2.png");
+    image_list_ptr.push_back(&file);
+
+    //
+    // Fin de la partie
+    //
+
+    // Souris + Clavier
     mouse mouse_control{};          // Init de la souris
     keyboard keyboard_control{};    // Init du clavier
+    //
 
+    // Objet: Affichage du texte
     std::unique_ptr<text> text1(new text{_window_width, _window_height, "TimesNewRomance.ttf", 50, Square_Color::White, 255, _renderer});    // Init du text
+    //
 
+    // Objet: Execution de commande systeme
     std::unique_ptr<system_exec> system_exec1(new system_exec);    // Init du system_exec
+    //
 
+    // Objet: Dessin de l'interface
     std::unique_ptr<draw> draw_on_window(new draw{_renderer, &_rect, _window_width, _window_height, Square_Color::Gray1});
     std::unique_ptr<draw> *draw = &draw_on_window;
+    //
 
-    files_display set_files_display{draw, _window_width, _window_height};
+    // Objet: Affichage des fichiers
+    files_display set_files_display{draw, iconLoader_ptr, _window_width, _window_height};
+    //
+
+    // Init des variables pour le calcul du nombre d'iteration par seconde, fps
+    int count = 0;
+    auto start_time = std::chrono::high_resolution_clock::now();
+    //
 
     while (!_quit)
     {
+        //
+        // Cette partie de code permet de calculer le nombre d'iteration par seconde
+        // Et de limiter le nombre d'iteration par seconde a 120
+        count++;
+        auto end_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+
+        if (elapsed_seconds.count() >= 1.0) {
+            //std::cout << "Nombre d'itérations par seconde : " << count << std::endl;
+            count = 0;
+            start_time = std::chrono::high_resolution_clock::now();
+        }
+        // Fin de la partie
+        //
+
+        std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000.0 / 120.0)));
+
         while (SDL_PollEvent(&_event))
         {
             if (_event.type == SDL_QUIT)
@@ -53,11 +106,16 @@ void window::run_program()
             draw_on_window->draw_font();    // Affiche le font
             draw_on_window->draw_text(text1, system_exec1);    // Affiche le text
 
-            set_files_display.display();
+            set_files_display.display(image_list_ptr);   // Affiche les fichiers
 
             SDL_RenderPresent(_renderer);   // Affiche le render
 
         }
+    }
+
+    for (auto &image : image_list_ptr)
+    {
+        SDL_DestroyTexture(image->texture);
     }
 }
 

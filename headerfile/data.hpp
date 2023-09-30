@@ -1,6 +1,8 @@
 #ifndef CONTROL_PANEL_DATA_HPP
     #define CONTROL_PANEL_DATA_HPP
 
+    #include <SDL2/SDL.h>
+
     enum class Square_Color
     {
         Red,

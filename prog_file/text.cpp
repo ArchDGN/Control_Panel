@@ -7,7 +7,7 @@
 
 text::text(int *window_width, int *window_height, std::string file_name, int pt_size, Square_Color color, Uint8 alpha, SDL_Renderer *renderer) : _window_width(window_width), _window_height(window_height), _renderer(renderer)
 {
-    std::cout << "Init text" << std::endl;
+    //std::cout << "Init text" << std::endl;
 
     // Init de la police de charactere
     _TimesNewRomance = TTF_OpenFont(file_name.c_str(), pt_size);

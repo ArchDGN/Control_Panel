@@ -3,9 +3,12 @@
 
     #include <string>
     #include <SDL2/SDL.h>
+    #include <list>
+    #include <memory>
 
     #include "../headerfile/mouse.hpp"
     #include "../headerfile/keyboard.hpp"
+    #include "../headerfile/icon_loader.hpp"
 
     void get_error (std::string error, std::string error_log, int code);
 
