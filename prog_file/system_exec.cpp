@@ -67,18 +67,58 @@ std::string system_exec::return_pwd(Command_Option option)
 
 void system_exec::refresh_ls()
 {
-    _ls = exe("ls");
+    _ls = exe("ls " + _pwd);
     //std::cout << _ls << std::endl;
 }
 
 void system_exec::refresh_ls_directory()
 {
-    _ls_directory = exe("ls -d */");
-    //std::cout << _ls_directory << std::endl;
+    _ls_directory = exe("ls -la " + _pwd);
+    //std::cout << _ls_directory << "\n ------- \n" << std::endl;
+
+    std::string final = "";
+    file_count = 0;
+    directory_count = 0;
+
+    for (int i=0;i<int(_ls_directory.length());i++)
+    {
+        final += _ls_directory[i];
+        if (_ls_directory[i] == '\n')
+        {
+            //std::cout << final << std::endl;
+            if ("total" == final.substr(0, 5))
+            {
+                final = "";
+                continue;
+            }
+
+            if (final[0] == 'd')
+            {
+                directory_count++;
+            }
+            else if (final[0] == '-')
+            {
+                file_count++;
+            }
+            final = "";
+        }
+    }
+
+    //std::cout << "File count: " << file_count << std::endl;
+    //std::cout << "Directory count: " << directory_count << std::endl;
+}
+
+std::vector<int> system_exec::return_file_and_directory_count()
+{
+    std::vector<int> vector;
+    vector.push_back(directory_count);
+    vector.push_back(file_count);
+
+    return vector;
 }
 
 void system_exec::refresh_ls_file()
 {
-    _ls_file = exe("ls -p | grep -v /");
+    _ls_file = exe("ls -la " + _pwd);
     //std::cout << _ls_file << std::endl;
 }

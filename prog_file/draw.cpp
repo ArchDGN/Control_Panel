@@ -46,7 +46,7 @@ void draw::draw_font()
     // Dessine le rectangle du haut de la fenetre
     draw_rectangle(0, 0, *w, *h / 10, *h, Square_Color::Gray2, 255);
     // Dessine le rectangle a gauche de la fenetre
-    draw_rectangle(0, 0, *w / 8, *h, *w, Square_Color::Gray2, 255);
+    draw_rectangle(0, 0, *w / 5, *h, *w, Square_Color::Gray2, 255);
     // Dessine le rectangle en bas a droite de la fenetre
     draw_rectangle(*w - *w / 9, *h - *h / 4, *w, *h, *w, Square_Color::Gray2, 255);
     // Dessine le rectangle en bas de la fenetre
@@ -57,13 +57,13 @@ void draw::draw_font()
     // Dessine les contours des differents rectangles en gris clair
     draw_rectangle(-1, -1, *w + 1, *h + 1, 4, Square_Color::LightGray1, 255);
     draw_rectangle(0, 0, *w, *h / 10, 2, Square_Color::LightGray1, 255);
-    draw_rectangle(0, 0, *w / 8, *h, 2, Square_Color::LightGray1, 255);
+    draw_rectangle(0, 0, *w / 5, *h, 2, Square_Color::LightGray1, 255);
     draw_rectangle(*w - *w / 9, *h - *h / 4, *w, *h, 2, Square_Color::LightGray1, 255);
-    draw_rectangle(*w/8 - 4, *h - *h / 16, *w - (*w/8) - (*w/9) + 8, *h, 2, Square_Color::LightGray1, 255);
+    draw_rectangle(*w/5 - 4, *h - *h / 16, *w - (*w/5) - (*w/9) + 8, *h, 2, Square_Color::LightGray1, 255);
     draw_rectangle(*w - *w/10, *h / 10 + 20, *w/10 - 20, *h - (*h/10 + 20) - *h/4 - 20, 4, Square_Color::LightGray1, 255);
 
     // Dessine le rectangle arrondi en haut a gauche de la fenetre
-    draw_circle_x_square(5, 5, *w / 8 - 10, *h / 10 - 10, 20000, Square_Color::NONE, 255);
+    draw_circle_x_square(5, 5, *w / 5 - 10, *h / 10 - 10, 20000, Square_Color::NONE, 255);
 
     set_font_color();
 }
@@ -74,7 +74,7 @@ void draw::draw_text(std::unique_ptr<text> &text1, std::unique_ptr<system_exec> 
     int *w = _window_width;
     int *h = _window_height;
 
-    text1->draw_text(system_exec1->return_pwd(Command_Option::Rewrite), *w / 8 + 10, *h / 20 - 20, *w - (*w / 8 + 10), 40, Text_Property::Revert_Cut_With_Points, Text_Property::Fit_Screen);
+    text1->draw_text(system_exec1->return_pwd(Command_Option::Rewrite), *w / 5 + 10, *h / 20 - 20, *w - (*w / 8 + 10), 40, Text_Property::Revert_Cut_With_Points, Text_Property::Fit_Screen);
 
 }
 

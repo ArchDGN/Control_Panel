@@ -1,11 +1,10 @@
 #include <iostream>
 #include <string>
 #include <memory>
-#include <list>
+#include <vector>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <chrono>
 #include <thread>
 
 #include "../headerfile/window.hpp"
@@ -23,7 +22,7 @@ void window::run_program()
     // Creation d'un pointeur qui pointe sur l'objet icon_loader
     std::unique_ptr<icon_loader> *iconLoader_ptr = &iconLoader1;
     // Creation d'une liste qui contient les icones
-    std::list<Image*> image_list_ptr;
+    std::vector<Image*> image_list_ptr;
 
     // Ajout des icones dans la liste, directory
     Image directory = iconLoader1->load_image("icon/directoryv2.png");
@@ -48,6 +47,7 @@ void window::run_program()
 
     // Objet: Execution de commande systeme
     std::unique_ptr<system_exec> system_exec1(new system_exec);    // Init du system_exec
+    std::unique_ptr<system_exec> *system_exec_ptr = &system_exec1;
     //
 
     // Objet: Dessin de l'interface
@@ -56,7 +56,7 @@ void window::run_program()
     //
 
     // Objet: Affichage des fichiers
-    files_display set_files_display{draw, iconLoader_ptr, _window_width, _window_height};
+    files_display set_files_display{draw, iconLoader_ptr, system_exec_ptr, _window_width, _window_height};
     //
 
     // Init des variables pour le calcul du nombre d'iteration par seconde, fps
@@ -78,10 +78,10 @@ void window::run_program()
             count = 0;
             start_time = std::chrono::high_resolution_clock::now();
         }
-        // Fin de la partie
-        //
 
         std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000.0 / 120.0)));
+        // Fin de la partie
+        //
 
         while (SDL_PollEvent(&_event))
         {

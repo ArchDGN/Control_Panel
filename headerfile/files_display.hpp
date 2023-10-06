@@ -14,6 +14,7 @@
         private:
             std::unique_ptr<draw> *_draw;
             std::unique_ptr<icon_loader> *_icon_loader;
+              std::unique_ptr<system_exec> *_system_exec;
 
             int *_window_width;
             int *_window_height;
@@ -21,24 +22,21 @@
             int ref_width;
             int ref_height;
 
+            int max_number_of_files_w;
+            int max_number_of_files_h;
+            int file_coord_x;
+            int file_coord_y;
 
-            int directory_arrow_x;
-            int directory_arrow_y;
-            int directory_arrow_width;
-            int directory_arrow_height;
-            int number_of_files_w;
-            int file_centered_w;
-            int number_of_files_y;
-            int file_centered_h;
+            std::vector<Image *>::iterator image;
 
-            std::list<Image*>::iterator image;
 
+            void refresh_display_info();
         public:
             files_display() = delete;
-            files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_loader> *icl, int *w, int *h);
+            files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_loader> *icl, std::unique_ptr<system_exec> *system_exec_ptr, int *w, int *h);
             ~files_display() = default;
 
-            void display(std::list<Image*> image_list_ptr);
+            void display(std::vector<Image*> image_list_ptr);
     };
 
 

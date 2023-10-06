@@ -5,8 +5,6 @@
 
 #include "../headerfile/window.hpp"
 
-#include <chrono>
-
 int main()
 {
     int window_width = 1800;
