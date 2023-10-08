@@ -14,7 +14,8 @@
         private:
             std::unique_ptr<draw> *_draw;
             std::unique_ptr<icon_loader> *_icon_loader;
-              std::unique_ptr<system_exec> *_system_exec;
+            std::unique_ptr<system_exec> *_system_exec;
+            std::unique_ptr<text> *_text_display;
 
             int *_window_width;
             int *_window_height;
@@ -31,9 +32,10 @@
 
 
             void refresh_display_info();
+
         public:
             files_display() = delete;
-            files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_loader> *icl, std::unique_ptr<system_exec> *system_exec_ptr, int *w, int *h);
+            files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_loader> *icl, std::unique_ptr<system_exec> *system_exec_ptr, std::unique_ptr<text> *text_ptr, int *w, int *h);
             ~files_display() = default;
 
             void display(std::vector<Image*> image_list_ptr);

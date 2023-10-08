@@ -1,11 +1,12 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <thread>
 
 #include "../headerfile/files_display.hpp"
 #include "../headerfile/system_exec.hpp"
 
-files_display::files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_loader> *icl, std::unique_ptr<system_exec> *system_exec_ptr, int *w, int *h): _draw{draw}, _icon_loader(icl), _system_exec(system_exec_ptr), _window_width{w}, _window_height{h}
+files_display::files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_loader> *icl, std::unique_ptr<system_exec> *system_exec_ptr, std::unique_ptr<text> *text_ptr, int *w, int *h): _draw{draw}, _icon_loader(icl), _system_exec(system_exec_ptr), _text_display(text_ptr), _window_width{w}, _window_height{h}
 {
     // Corespond au radius de la fenetre a un instant t, au lancement du programme mis a 0
     ref_width = 0;
@@ -32,8 +33,15 @@ void files_display::display(std::vector<Image*> image_list_ptr)
     int nb_img = 0;
     for (int nb_files = 0; nb_files < (file[0] + file[1]); nb_files++)
     {
+        /*(*_draw)->draw_rectangle(file_coord_x + (100 * file_x), file_coord_y + (130 * file_y), 80, 80, 2000, Square_Color::Blue, 255);
+        (*_draw)->draw_rectangle(file_coord_x + (100 * file_x) - 5, file_coord_y + (130 * file_y) + 85, 90, 40, 2000, Square_Color::Red, 255);*/
+
         (*_icon_loader)->set_dest_rect_ptr((image[nb_img])->_dest_rect_ptr,file_coord_x + (100 * file_x),file_coord_y + (130 * file_y), 80, 80);
         (*_icon_loader)->show_image(*image[nb_img]);
+
+        (*_text_display)->draw_text("H H H H H H H H H H", file_coord_x + (100 * file_x) - 5, file_coord_y + (130 * file_y) + 85, 90, 20, Text_Property::Cut, Text_Property::NONE);
+        (*_text_display)->draw_text("H H H H H H H H H H", file_coord_x + (100 * file_x) - 5, file_coord_y + (130 * file_y) + 105, 90, 20, Text_Property::Cut, Text_Property::NONE);
+
         file_x++;
         if (file_x == max_number_of_files_w)
         {

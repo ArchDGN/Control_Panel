@@ -24,7 +24,6 @@
         ~text();
 
         void set_color(Square_Color color, Uint8 alpha);
-
         void draw_text(std::string text_to_draw, int x, int y, int width, int height, Text_Property text, Text_Property screen);
 
     };

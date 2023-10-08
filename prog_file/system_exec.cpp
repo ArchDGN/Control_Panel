@@ -36,7 +36,8 @@ std::string system_exec::exe(std::string command)
 
 void system_exec::refresh_pwd()
 {
-    _pwd = exe("pwd");
+    //_pwd = exe("pwd");
+    _pwd = "/usr/bin/"; // TODO: Remove this line
     _pwd_rewritten = _pwd;
 
     _pwd_rewritten = _pwd.substr(0, _pwd.length() - 1); // Enlève le '\n' à la fin de la chaîne

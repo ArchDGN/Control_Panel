@@ -42,7 +42,8 @@ void window::run_program()
     //
 
     // Objet: Affichage du texte
-    std::unique_ptr<text> text1(new text{_window_width, _window_height, "TimesNewRomance.ttf", 50, Square_Color::White, 255, _renderer});    // Init du text
+    std::unique_ptr<text> text1(new text{_window_width, _window_height, "roboto/Roboto-Medium.ttf", 32, Square_Color::White, 255, _renderer});    // Init du text
+    std::unique_ptr<text> *text_ptr = &text1;
     //
 
     // Objet: Execution de commande systeme
@@ -52,20 +53,24 @@ void window::run_program()
 
     // Objet: Dessin de l'interface
     std::unique_ptr<draw> draw_on_window(new draw{_renderer, &_rect, _window_width, _window_height, Square_Color::Gray1});
-    std::unique_ptr<draw> *draw = &draw_on_window;
+    std::unique_ptr<draw> *draw_ptr = &draw_on_window;
     //
 
     // Objet: Affichage des fichiers
-    files_display set_files_display{draw, iconLoader_ptr, system_exec_ptr, _window_width, _window_height};
+    files_display set_files_display{draw_ptr, iconLoader_ptr, system_exec_ptr, text_ptr, _window_width, _window_height};
     //
 
     // Init des variables pour le calcul du nombre d'iteration par seconde, fps
     int count = 0;
     auto start_time = std::chrono::high_resolution_clock::now();
+    Uint32 frameStart, frameTime;
+    const int FRAME_DELAY = 1000 / 120;
     //
 
     while (!_quit)
     {
+        frameStart = SDL_GetTicks();
+
         //
         // Cette partie de code permet de calculer le nombre d'iteration par seconde
         // Et de limiter le nombre d'iteration par seconde a 120
@@ -74,7 +79,7 @@ void window::run_program()
         std::chrono::duration<double> elapsed_seconds = end_time - start_time;
 
         if (elapsed_seconds.count() >= 1.0) {
-            //std::cout << "Nombre d'itérations par seconde : " << count << std::endl;
+            std::cout << "Nombre d'itérations par seconde : " << count << std::endl;
             count = 0;
             start_time = std::chrono::high_resolution_clock::now();
         }
@@ -87,6 +92,7 @@ void window::run_program()
         {
             if (_event.type == SDL_QUIT)
             {
+                //std::cout << "Quit" << std::endl;
                 _quit = true;
             }
 
@@ -106,10 +112,18 @@ void window::run_program()
             draw_on_window->draw_font();    // Affiche le font
             draw_on_window->draw_text(text1, system_exec1);    // Affiche le text
 
+            //auto start_time = std::chrono::high_resolution_clock::now();
             set_files_display.display(image_list_ptr);   // Affiche les fichiers
+            /*auto end_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+            std::cout << "Temps de rendu du texte : " << elapsed_seconds.count() << std::endl;*/
 
             SDL_RenderPresent(_renderer);   // Affiche le render
 
+            frameTime = SDL_GetTicks() - frameStart;
+            if (frameTime < FRAME_DELAY) {
+                SDL_Delay(FRAME_DELAY - frameTime);
+            }
         }
     }
 

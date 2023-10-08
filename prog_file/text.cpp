@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <chrono>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
@@ -86,6 +87,7 @@ void text::draw_text(std::string text_to_draw, int x, int y, int width, int heig
 
     // Texture du texte
     SDL_Texture* Message = SDL_CreateTextureFromSurface(_renderer, surfaceMessage);
+    SDL_FreeSurface(surfaceMessage);
 
     // Rect du texte, c'est a dire la position et la taille du texte
     SDL_Rect Message_rect; //create a rect
@@ -96,6 +98,7 @@ void text::draw_text(std::string text_to_draw, int x, int y, int width, int heig
 
     // Affiche le texte
     SDL_RenderCopy(_renderer, Message, NULL, &Message_rect);
+    SDL_DestroyTexture(Message);
 }
 
 void text::set_color(Square_Color color, Uint8 alpha)
