@@ -10,7 +10,6 @@ system_exec::system_exec()
     refresh_pwd();
     refresh_ls();
     refresh_ls_directory();
-    refresh_ls_file();
 }
 
 std::string system_exec::exe(std::string command)
@@ -36,8 +35,7 @@ std::string system_exec::exe(std::string command)
 
 void system_exec::refresh_pwd()
 {
-    //_pwd = exe("pwd");
-    _pwd = "/usr/bin/"; // TODO: Remove this line
+    _pwd = exe("pwd");
     _pwd_rewritten = _pwd;
 
     _pwd_rewritten = _pwd.substr(0, _pwd.length() - 1); // Enlève le '\n' à la fin de la chaîne
@@ -74,17 +72,26 @@ void system_exec::refresh_ls()
 
 void system_exec::refresh_ls_directory()
 {
-    _ls_directory = exe("ls -la " + _pwd);
-    //std::cout << _ls_directory << "\n ------- \n" << std::endl;
+    _ls_files = exe("ls -l " + _pwd);
+    // Afficher uniquement les fichiers cachés    ls -a | grep "^\."
+    //std::cout << _ls_files << std::endl;
 
     std::string final = "";
+
+    std::string directory_name = "";
+    std::string file_name = "";
+    ordered_file_list = "";
+
+    size_t pos1 = 0;
+    size_t pos = _ls.find('\n',pos1);
+
     file_count = 0;
     directory_count = 0;
 
-    for (int i=0;i<int(_ls_directory.length());i++)
+    for (int i=0;i<int(_ls_files.length());i++)
     {
-        final += _ls_directory[i];
-        if (_ls_directory[i] == '\n')
+        final += _ls_files[i];
+        if (_ls_files[i] == '\n')
         {
             //std::cout << final << std::endl;
             if ("total" == final.substr(0, 5))
@@ -96,14 +103,23 @@ void system_exec::refresh_ls_directory()
             if (final[0] == 'd')
             {
                 directory_count++;
+                directory_name += _ls.substr(pos1, pos - pos1);
+                directory_name += "\n";
+                pos1 = pos+1;
+                pos = _ls.find('\n',pos1);
             }
             else if (final[0] == '-')
             {
                 file_count++;
+                file_name += _ls.substr(pos1, pos - pos1);
+                file_name += "\n";
+                pos1 = pos+1;
+                pos = _ls.find('\n',pos1);
             }
             final = "";
         }
     }
+    ordered_file_list = directory_name + file_name;
 
     //std::cout << "File count: " << file_count << std::endl;
     //std::cout << "Directory count: " << directory_count << std::endl;
@@ -118,8 +134,25 @@ std::vector<int> system_exec::return_file_and_directory_count()
     return vector;
 }
 
-void system_exec::refresh_ls_file()
+std::string system_exec::return_ofl(Command_Option option)
 {
-    _ls_file = exe("ls -la " + _pwd);
-    //std::cout << _ls_file << std::endl;
+    if (option == Command_Option::Rewrite)
+    {
+        std::string final = "";
+        size_t pos1 = 0;
+        size_t pos = ordered_file_list.find('\n',pos1);
+
+        for (int i = 0; i < directory_count + file_count; i++) {
+            if (pos - pos1 > 30)
+                final = final + ordered_file_list.substr(pos1, 35) + "..." + "\n";
+            else
+                final = final + ordered_file_list.substr(pos1, pos - pos1) + "\n";
+
+            pos1 = pos+1;
+            pos = ordered_file_list.find('\n',pos1);
+        }
+        return final;
+    }
+    return ordered_file_list;
+
 }

@@ -10,51 +10,15 @@
 #include "../headerfile/window.hpp"
 #include "../headerfile/draw.hpp"
 #include "../headerfile/files_display.hpp"
+#include "../headerfile/button.hpp"
 
 void window::run_program()
 {
-    //
-    // Cette partie charge les icones
-    //
 
-    // Creation de l'objet qui permet de charger les icones
-    std::unique_ptr<icon_loader> iconLoader1( new icon_loader{_renderer, _window_width, _window_height});
-    // Creation d'un pointeur qui pointe sur l'objet icon_loader
-    std::unique_ptr<icon_loader> *iconLoader_ptr = &iconLoader1;
-    // Creation d'une liste qui contient les icones
-    std::vector<Image*> image_list_ptr;
+    initialize_program();
 
-    // Ajout des icones dans la liste, directory
-    Image directory = iconLoader1->load_image("icon/directoryv2.png");
-    image_list_ptr.push_back(&directory);
-
-    // Ajout des icones dans la liste, file
-    Image file = iconLoader1->load_image("icon/filev2.png");
-    image_list_ptr.push_back(&file);
-
-    //
-    // Fin de la partie
-    //
-
-    // Souris + Clavier
-    mouse mouse_control{};          // Init de la souris
-    keyboard keyboard_control{};    // Init du clavier
-    //
-
-    // Objet: Affichage du texte
-    std::unique_ptr<text> text1(new text{_window_width, _window_height, "roboto/Roboto-Medium.ttf", 32, Square_Color::White, 255, _renderer});    // Init du text
-    std::unique_ptr<text> *text_ptr = &text1;
-    //
-
-    // Objet: Execution de commande systeme
-    std::unique_ptr<system_exec> system_exec1(new system_exec);    // Init du system_exec
-    std::unique_ptr<system_exec> *system_exec_ptr = &system_exec1;
-    //
-
-    // Objet: Dessin de l'interface
-    std::unique_ptr<draw> draw_on_window(new draw{_renderer, &_rect, _window_width, _window_height, Square_Color::Gray1});
-    std::unique_ptr<draw> *draw_ptr = &draw_on_window;
-    //
+    iconLoader->load_image_with_id("directory", "icon/directoryv2.png");
+    iconLoader->load_image_with_id("file", "icon/filev2.png");
 
     // Objet: Affichage des fichiers
     files_display set_files_display{draw_ptr, iconLoader_ptr, system_exec_ptr, text_ptr, _window_width, _window_height};
@@ -79,7 +43,7 @@ void window::run_program()
         std::chrono::duration<double> elapsed_seconds = end_time - start_time;
 
         if (elapsed_seconds.count() >= 1.0) {
-            std::cout << "Nombre d'itérations par seconde : " << count << std::endl;
+            //std::cout << "Nombre d'itérations par seconde : " << count << std::endl;
             count = 0;
             start_time = std::chrono::high_resolution_clock::now();
         }
@@ -101,22 +65,12 @@ void window::run_program()
 
             draw_on_window->set_font_color();
 
-            /*
-            keyboard_control.is_pressed(_event);    // Verifie si une touche est presse
-            keyboard_control.is_released(_event);   // Verifie si une touche est relache
-
-
-            mouse_control.get_position(_event, &mouse_pos_x, &mouse_pos_y);         // Attibut au variable mouse_pos_x et mouse_pos_y la position de la souris
-             */
+            button_control->check_all_buttons_clicked();    // Verifie si un bouton a ete clique
 
             draw_on_window->draw_font();    // Affiche le font
             draw_on_window->draw_text(text1, system_exec1);    // Affiche le text
 
-            //auto start_time = std::chrono::high_resolution_clock::now();
-            set_files_display.display(image_list_ptr);   // Affiche les fichiers
-            /*auto end_time = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed_seconds = end_time - start_time;
-            std::cout << "Temps de rendu du texte : " << elapsed_seconds.count() << std::endl;*/
+            set_files_display.display();   // Affiche les fichiers
 
             SDL_RenderPresent(_renderer);   // Affiche le render
 
@@ -126,14 +80,46 @@ void window::run_program()
             }
         }
     }
-
-    for (auto &image : image_list_ptr)
-    {
-        SDL_DestroyTexture(image->texture);
-    }
 }
 
-window::window(int *window_width, int *window_height, const std::string *prog_name, SDL_Surface* ico) : _window_width(window_width), _window_height(window_height), _prog_name(prog_name), _ico(ico)
+
+void window::initialize_program()
+{
+
+    // Creation de l'objet qui permet de charger les icones
+    iconLoader = std::make_unique<icon_loader>(_renderer, _window_width, _window_height);
+    iconLoader_ptr = &iconLoader;
+
+    // Souris + Clavier
+    mouse_control = std::make_unique<mouse>(&_event);          // Init de la souris
+    mouse_control_ptr = &mouse_control;                        // Pointeur qui pointe sur la souris
+
+    keyboard_control = std::make_unique<keyboard>();    // Init du clavier
+    //
+
+    // Objet: Bouton
+    button_control = std::make_unique<button>(mouse_control_ptr, _window_width, _window_height);
+    button_control_ptr = &button_control;
+
+    // Objet: Affichage du texte
+    text1 = std::make_unique<text>(_window_width, _window_height, "roboto/Roboto-Medium.ttf", 32, Square_Color::White, 255, _renderer);
+    text_ptr = &text1;
+    //
+
+    // Objet: Execution de commande systeme
+    system_exec1 = std::make_unique<system_exec>();
+    system_exec_ptr = &system_exec1;
+    //
+
+    // Objet: Dessin de l'interface
+    draw_on_window = std::make_unique<draw>(_renderer, &_rect, _window_width, _window_height, Square_Color::Gray1);
+    draw_ptr = &draw_on_window;
+    //
+}
+
+
+window::window(int *window_width, int *window_height, const std::string *prog_name, SDL_Surface* ico)
+    : _window_width(window_width), _window_height(window_height), _prog_name(prog_name), _ico(ico)
 {
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)      // SDL init
@@ -162,9 +148,15 @@ window::window(int *window_width, int *window_height, const std::string *prog_na
 
 window::~window()
 {
-    SDL_RenderClear(_renderer);         //  Clear de tout les asset
-    SDL_DestroyRenderer(_renderer);     //
-    SDL_DestroyWindow(_prog_window);    //      Le programme finit correctement, sans erreur
-    TTF_Quit();
-    SDL_Quit();                         //
+    if (_renderer) {
+        SDL_RenderClear(_renderer);
+        SDL_DestroyRenderer(_renderer);
+        _renderer = nullptr;
+    }
+    if (_prog_window) {
+        SDL_DestroyWindow(_prog_window);
+        _prog_window = nullptr;
+    }
+
+    SDL_Quit();
 }

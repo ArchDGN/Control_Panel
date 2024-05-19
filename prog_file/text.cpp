@@ -6,7 +6,7 @@
 
 #include "../headerfile/text.hpp"
 
-text::text(int *window_width, int *window_height, std::string file_name, int pt_size, Square_Color color, Uint8 alpha, SDL_Renderer *renderer) : _window_width(window_width), _window_height(window_height), _renderer(renderer)
+text::text(int *window_width, int *window_height, const std::string& file_name, int pt_size, Square_Color color, Uint8 alpha, SDL_Renderer *renderer) : _window_width(window_width), _window_height(window_height), _renderer(renderer)
 {
     //std::cout << "Init text" << std::endl;
 
@@ -21,7 +21,12 @@ text::text(int *window_width, int *window_height, std::string file_name, int pt_
 text::~text()
 {
     // Ferme la police de charactere
-    TTF_CloseFont(_TimesNewRomance);
+    if (_TimesNewRomance) {
+        TTF_CloseFont(_TimesNewRomance);
+        _TimesNewRomance = nullptr;
+    }
+
+    TTF_Quit();
 }
 
 void text::draw_text(std::string text_to_draw, int x, int y, int width, int height, Text_Property text, Text_Property screen)

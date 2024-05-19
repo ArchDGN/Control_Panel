@@ -16,11 +16,11 @@
 
         SDL_Renderer *_renderer;
         TTF_Font *_TimesNewRomance;
-        SDL_Color _color;
+        SDL_Color _color{};
 
     public:
         text() = delete;
-        text(int *window_width, int *window_height, std::string file_name, int pt_size, Square_Color color, Uint8 alpha, SDL_Renderer *renderer);
+        text(int *window_width, int *window_height, const std::string& file_name, int pt_size, Square_Color color, Uint8 alpha, SDL_Renderer *renderer);
         ~text();
 
         void set_color(Square_Color color, Uint8 alpha);

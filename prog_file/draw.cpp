@@ -61,6 +61,7 @@ void draw::draw_font()
     draw_rectangle(*w - *w / 9, *h - *h / 4, *w, *h, 2, Square_Color::LightGray1, 255);
     draw_rectangle(*w/5 - 4, *h - *h / 16, *w - (*w/5) - (*w/9) + 8, *h, 2, Square_Color::LightGray1, 255);
     draw_rectangle(*w - *w/10, *h / 10 + 20, *w/10 - 20, *h - (*h/10 + 20) - *h/4 - 20, 4, Square_Color::LightGray1, 255);
+    draw_rectangle(*w - *w / 9, *h / 10 + 40, 2, *h - (*h/10 + 20) - *h/4 - 60, 2, Square_Color::LightGray1, 255);
 
     // Dessine le rectangle arrondi en haut a gauche de la fenetre
     draw_circle_x_square(5, 5, *w / 5 - 10, *h / 10 - 10, 20000, Square_Color::NONE, 255);

@@ -13,7 +13,7 @@ files_display::files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_l
     ref_height = 0;
 }
 
-void files_display::display(std::vector<Image*> image_list_ptr)
+void files_display::display()
 {
     std::vector<int> file = (*_system_exec)->return_file_and_directory_count();
     //std::cout << "Nombre de fichiers : " << file.front() << std::endl;
@@ -26,23 +26,27 @@ void files_display::display(std::vector<Image*> image_list_ptr)
     }
 
     // On sélectionne l'image directory
-    image = image_list_ptr.begin();
+    std::string id = "directory";
 
     int file_x = 0;
     int file_y = 0;
-    int nb_img = 0;
+
+    std::string final;
+    size_t pos1 = 0;
+    size_t pos = file_name.find('\n',pos1);
     for (int nb_files = 0; nb_files < (file[0] + file[1]); nb_files++)
     {
-        /*(*_draw)->draw_rectangle(file_coord_x + (100 * file_x), file_coord_y + (130 * file_y), 80, 80, 2000, Square_Color::Blue, 255);
-        (*_draw)->draw_rectangle(file_coord_x + (100 * file_x) - 5, file_coord_y + (130 * file_y) + 85, 90, 40, 2000, Square_Color::Red, 255);*/
+        final =  file_name.substr(pos1, pos - pos1);
+        final.resize(30, ' ');
 
-        (*_icon_loader)->set_dest_rect_ptr((image[nb_img])->_dest_rect_ptr,file_coord_x + (100 * file_x),file_coord_y + (130 * file_y), 80, 80);
-        (*_icon_loader)->show_image(*image[nb_img]);
+        button_display(file_x, file_y);
+        icon_display(file_x, file_y, id);
+        text_display(file_x, file_y, final);
 
-        (*_text_display)->draw_text("H H H H H H H H H H", file_coord_x + (100 * file_x) - 5, file_coord_y + (130 * file_y) + 85, 90, 20, Text_Property::Cut, Text_Property::NONE);
-        (*_text_display)->draw_text("H H H H H H H H H H", file_coord_x + (100 * file_x) - 5, file_coord_y + (130 * file_y) + 105, 90, 20, Text_Property::Cut, Text_Property::NONE);
 
         file_x++;
+        pos1 = pos+1;
+        pos = file_name.find('\n',pos1);
         if (file_x == max_number_of_files_w)
         {
             file_x = 0;
@@ -51,7 +55,7 @@ void files_display::display(std::vector<Image*> image_list_ptr)
 
         if (nb_files == file[0] - 1)
         {
-            nb_img = 1;
+            id = "file";
         }
 
         if (file_y == max_number_of_files_h)
@@ -61,6 +65,24 @@ void files_display::display(std::vector<Image*> image_list_ptr)
     }
 
     (*_draw)->set_font_color();
+}
+
+void files_display::button_display(int file_x, int file_y)
+{
+    (*_draw)->draw_rectangle(file_coord_x + (100 * file_x), file_coord_y + (130 * file_y), 80, 80, 2000, Square_Color::Blue, 255);
+    (*_draw)->draw_rectangle(file_coord_x + (100 * file_x) - 5, file_coord_y + (130 * file_y) + 85, 90, 40, 2000, Square_Color::Red, 255);
+}
+
+void files_display::icon_display(int file_x, int file_y, const std::string& id)
+{
+    (*_icon_loader)->set_dest_rect_by_id(id, file_coord_x + (100 * file_x), file_coord_y + (130 * file_y), 80, 80);
+    (*_icon_loader)->show_image_by_id(id);
+}
+
+void files_display::text_display(int file_x, int file_y, const std::string& text)
+{
+    (*_text_display)->draw_text(text.substr(0, 15), file_coord_x + (100 * file_x) - 5, file_coord_y + (130 * file_y) + 80, 90, 20, Text_Property::Cut, Text_Property::NONE);
+    (*_text_display)->draw_text(text.substr(15, 15), file_coord_x + (100 * file_x) - 5, file_coord_y + (130 * file_y) + 100, 90, 20, Text_Property::Cut, Text_Property::NONE);
 }
 
 void files_display::refresh_display_info()
@@ -101,4 +123,6 @@ void files_display::refresh_display_info()
     // Coordonnees de la premiere icone
     file_coord_x = directory_arrow_x + file_centered_w;
     file_coord_y = directory_arrow_y + file_centered_h;
+
+    file_name = (*_system_exec)->return_ofl(Command_Option::Rewrite);
 }

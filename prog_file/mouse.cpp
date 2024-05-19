@@ -1,6 +1,5 @@
 #include <iostream>
 #include <SDL2/SDL.h>
-#include <array>
 
 #include "../headerfile/mouse.hpp"
 
@@ -28,33 +27,32 @@
 
 */
 
-mouse::mouse()
+mouse::mouse(SDL_Event *event): _event{event}
 {
     click_statue.fill(false);
+
+    update_position();
 }
 
-bool mouse::get_click_statue(SDL_Event event, int code)
+bool mouse::get_click_statue(int code)
 {
-    std::cout << click_statue[0] << std::endl;
+    //std::cout << click_statue[0] << std::endl;
     switch (code)
     {
     case SDL_BUTTON_LEFT:
-        left_button_pressed(event);
-        left_button_released(event);
+        left_button_pressed();
+        left_button_released();
         return click_statue[0];
-        break;
 
     case SDL_BUTTON_MIDDLE:
-        middle_button_pressed(event);
-        middle_button_released(event);
+        middle_button_pressed();
+        middle_button_released();
         return click_statue[1];
-        break;
 
     case SDL_BUTTON_RIGHT:
-        right_button_pressed(event);
-        right_button_released(event);
+        right_button_pressed();
+        right_button_released();
         return click_statue[2];
-        break;
     
     default:
         break;
@@ -63,20 +61,28 @@ bool mouse::get_click_statue(SDL_Event event, int code)
     return false;
 }
 
-void mouse::get_position(SDL_Event event, int *x, int *y)
+void mouse::update_position()
 {
-    if (SDL_MOUSEMOTION == event.type)
+    if (SDL_MOUSEMOTION == (*_event).type)
     {
-        SDL_GetMouseState(x, y);
+        SDL_GetMouseState(&_mouse_x, &_mouse_y);
     }
 }
 
-bool mouse::left_button_pressed(SDL_Event event)
+void mouse::return_position(int *x, int *y)
+{
+    update_position();
+
+    *x = _mouse_x;
+    *y = _mouse_y;
+}
+
+bool mouse::left_button_pressed()
 {
     bool is_pressed = false;
-    if (SDL_MOUSEBUTTONDOWN == event.type)
+    if (SDL_MOUSEBUTTONDOWN == (*_event).type)
             {
-                if (SDL_BUTTON_LEFT == event.button.button)
+                if (SDL_BUTTON_LEFT == (*_event).button.button)
                 {
                     is_pressed = true;
                     click_statue[0] = true;
@@ -86,12 +92,12 @@ bool mouse::left_button_pressed(SDL_Event event)
     return is_pressed;
 }
 
-bool mouse::middle_button_pressed(SDL_Event event)
+bool mouse::middle_button_pressed()
 {
     bool is_pressed = false;
-    if (SDL_MOUSEBUTTONDOWN == event.type)
+    if (SDL_MOUSEBUTTONDOWN == (*_event).type)
             {
-                if (SDL_BUTTON_MIDDLE == event.button.button)
+                if (SDL_BUTTON_MIDDLE == (*_event).button.button)
                 {
                     is_pressed = true;
                     click_statue[1] = true;
@@ -101,12 +107,12 @@ bool mouse::middle_button_pressed(SDL_Event event)
     return is_pressed;
 }
 
-bool mouse::right_button_pressed(SDL_Event event)
+bool mouse::right_button_pressed()
 {
     bool is_pressed = false;
-    if (SDL_MOUSEBUTTONDOWN == event.type)
+    if (SDL_MOUSEBUTTONDOWN == (*_event).type)
             {
-                if (SDL_BUTTON_RIGHT == event.button.button)
+                if (SDL_BUTTON_RIGHT == (*_event).button.button)
                 {
                     is_pressed = true;
                     click_statue[2] = true;
@@ -116,12 +122,12 @@ bool mouse::right_button_pressed(SDL_Event event)
     return is_pressed;
 }
 
-bool mouse::left_button_released(SDL_Event event)
+bool mouse::left_button_released()
 {
     bool is_released = false;
-    if (SDL_MOUSEBUTTONUP == event.type)
+    if (SDL_MOUSEBUTTONUP == (*_event).type)
             {
-                if (SDL_BUTTON_LEFT == event.button.button)
+                if (SDL_BUTTON_LEFT == (*_event).button.button)
                 {
                     is_released = true;
                     click_statue[0] = false;
@@ -131,12 +137,12 @@ bool mouse::left_button_released(SDL_Event event)
     return is_released;
 }
 
-bool mouse::middle_button_released(SDL_Event event)
+bool mouse::middle_button_released()
 {
     bool is_released = false;
-    if (SDL_MOUSEBUTTONUP == event.type)
+    if (SDL_MOUSEBUTTONUP == (*_event).type)
             {
-                if (SDL_BUTTON_MIDDLE == event.button.button)
+                if (SDL_BUTTON_MIDDLE == (*_event).button.button)
                 {
                     is_released = true;
                     click_statue[1] = false;
@@ -146,12 +152,12 @@ bool mouse::middle_button_released(SDL_Event event)
     return is_released;
 }
 
-bool mouse::right_button_released(SDL_Event event)
+bool mouse::right_button_released()
 {
     bool is_released = false;
-    if (SDL_MOUSEBUTTONUP == event.type)
+    if (SDL_MOUSEBUTTONUP == (*_event).type)
             {
-                if (SDL_BUTTON_RIGHT == event.button.button)
+                if (SDL_BUTTON_RIGHT == (*_event).button.button)
                 {
                     is_released = true;
                     click_statue[2] = false;
@@ -161,10 +167,10 @@ bool mouse::right_button_released(SDL_Event event)
     return is_released;
 }
 
-int mouse::mouse_wheel(SDL_Event event)
+int mouse::mouse_wheel()
 {
-    if (SDL_MOUSEWHEEL == event.type)
-        return event.wheel.y;
+    if (SDL_MOUSEWHEEL == (*_event).type)
+        return (*_event).wheel.y;
 
     return 0;
 }

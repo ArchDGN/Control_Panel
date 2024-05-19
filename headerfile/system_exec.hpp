@@ -14,8 +14,8 @@
         std::string _pwd_rewritten;
 
         std::string _ls;
-        std::string _ls_directory;
-        std::string _ls_file;
+        std::string _ls_files;
+        std::string ordered_file_list;
         int file_count;
         int directory_count;
 
@@ -31,9 +31,9 @@
 
         void refresh_ls();
         void refresh_ls_directory();
-        void refresh_ls_file();
 
         std::vector<int> return_file_and_directory_count();
+        std::string return_ofl(Command_Option option); // ordered_file_list
     };
 
 

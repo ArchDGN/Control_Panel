@@ -7,25 +7,32 @@
     class mouse
     {
         private:
-            std::array<bool, 3> click_statue;
+            std::array<bool, 3> click_statue{};
+
+            int _mouse_x{};
+            int _mouse_y{};
+
+            SDL_Event *_event;
 
         public:
-            mouse();
+            mouse() = delete;
+            explicit mouse(SDL_Event *event);
             ~mouse() = default;
 
-            void get_position(SDL_Event event, int *x, int *y);
+            void return_position(int *x, int *y);
+            void update_position();
 
-            bool left_button_pressed(SDL_Event event);
-            bool middle_button_pressed(SDL_Event event);
-            bool right_button_pressed(SDL_Event event);
+            bool left_button_pressed();
+            bool middle_button_pressed();
+            bool right_button_pressed();
 
-            bool left_button_released(SDL_Event event);
-            bool middle_button_released(SDL_Event event);
-            bool right_button_released(SDL_Event event);
+            bool left_button_released();
+            bool middle_button_released();
+            bool right_button_released();
 
-            int mouse_wheel(SDL_Event event);
+            int mouse_wheel();
 
-            bool get_click_statue(SDL_Event event, int code);
+            bool get_click_statue(int code);
     };
     
 

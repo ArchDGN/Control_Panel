@@ -23,13 +23,12 @@
             int ref_width;
             int ref_height;
 
-            int max_number_of_files_w;
-            int max_number_of_files_h;
-            int file_coord_x;
-            int file_coord_y;
+            int max_number_of_files_w{};
+            int max_number_of_files_h{};
+            int file_coord_x{};
+            int file_coord_y{};
 
-            std::vector<Image *>::iterator image;
-
+            std::string file_name;
 
             void refresh_display_info();
 
@@ -38,7 +37,11 @@
             files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_loader> *icl, std::unique_ptr<system_exec> *system_exec_ptr, std::unique_ptr<text> *text_ptr, int *w, int *h);
             ~files_display() = default;
 
-            void display(std::vector<Image*> image_list_ptr);
+            void display();
+            void text_display(int file_x, int file_y, const std::string& text);
+            void icon_display(int file_x, int file_y, const std::string& id);
+            void button_display(int file_x, int file_y);
+
     };
 
 
