@@ -7,15 +7,16 @@
 
 system_exec::system_exec()
 {
-    refresh_pwd();
+    set_default_pwd();
+    refresh_pwd_style();
     refresh_ls();
     refresh_ls_directory();
 }
 
-std::string system_exec::exe(std::string command)
+std::string system_exec::exe(const std::string& command)
 {
     char buffer[128];
-    std::string result = "";
+    std::string result;
 
     // Ouvre un processus et exécute la commande
     FILE* pipe = popen(command.c_str(), "r");
@@ -33,14 +34,28 @@ std::string system_exec::exe(std::string command)
     return result;
 }
 
-void system_exec::refresh_pwd()
+void system_exec::set_default_pwd()
 {
-    _pwd = exe("pwd");
-    _pwd_rewritten = _pwd;
+    _pwd = exe("echo $HOME");
+}
 
-    _pwd_rewritten = _pwd.substr(0, _pwd.length() - 1); // Enlève le '\n' à la fin de la chaîne
+void system_exec::set_pwd(const std::string &pwd)
+{
+    _pwd = pwd;
 
-    std::string final = "";
+    refresh_pwd_style();
+    refresh_ls();
+    refresh_ls_directory();
+}
+
+void system_exec::refresh_pwd_style()
+{
+    if (!_pwd.empty() && _pwd.back() == '\n')
+        _pwd_rewritten = _pwd.substr(0, _pwd.length() - 1);
+    else
+        _pwd_rewritten = _pwd;
+
+    std::string final;
 
     std::istringstream iss(_pwd_rewritten);
     std::vector<std::string> parsedStrings;
@@ -48,7 +63,7 @@ void system_exec::refresh_pwd()
     // Utilise un stringstream pour séparer la chaîne par les '/'
     std::string word;
     while (std::getline(iss, word, '/')) {
-        final = final + word + " > ";
+        final += word + " > ";
         if (!word.empty())
             parsedStrings.push_back(word);
     }
@@ -76,10 +91,10 @@ void system_exec::refresh_ls_directory()
     // Afficher uniquement les fichiers cachés    ls -a | grep "^\."
     //std::cout << _ls_files << std::endl;
 
-    std::string final = "";
+    std::string final;
 
-    std::string directory_name = "";
-    std::string file_name = "";
+    std::string directory_name;
+    std::string file_name;
     ordered_file_list = "";
 
     size_t pos1 = 0;
@@ -125,7 +140,7 @@ void system_exec::refresh_ls_directory()
     //std::cout << "Directory count: " << directory_count << std::endl;
 }
 
-std::vector<int> system_exec::return_file_and_directory_count()
+std::vector<int> system_exec::return_file_and_directory_count() const
 {
     std::vector<int> vector;
     vector.push_back(directory_count);
@@ -138,15 +153,15 @@ std::string system_exec::return_ofl(Command_Option option)
 {
     if (option == Command_Option::Rewrite)
     {
-        std::string final = "";
+        std::string final;
         size_t pos1 = 0;
         size_t pos = ordered_file_list.find('\n',pos1);
 
         for (int i = 0; i < directory_count + file_count; i++) {
             if (pos - pos1 > 30)
-                final = final + ordered_file_list.substr(pos1, 35) + "..." + "\n";
+                final += ordered_file_list.substr(pos1, 35) + "..." + "\n";
             else
-                final = final + ordered_file_list.substr(pos1, pos - pos1) + "\n";
+                final += ordered_file_list.substr(pos1, pos - pos1) + "\n";
 
             pos1 = pos+1;
             pos = ordered_file_list.find('\n',pos1);

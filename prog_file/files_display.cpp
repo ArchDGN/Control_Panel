@@ -1,12 +1,14 @@
 #include <iostream>
-#include <memory>
 #include <vector>
 #include <thread>
+#include <algorithm>
+#include <map>
+#include <locale>
+#include <codecvt>
 
 #include "../headerfile/files_display.hpp"
-#include "../headerfile/system_exec.hpp"
 
-files_display::files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_loader> *icl, std::unique_ptr<system_exec> *system_exec_ptr, std::unique_ptr<text> *text_ptr, int *w, int *h): _draw{draw}, _icon_loader(icl), _system_exec(system_exec_ptr), _text_display(text_ptr), _window_width{w}, _window_height{h}
+files_display::files_display(std::unique_ptr<draw> *draw, std::unique_ptr<icon_loader> *icl, std::unique_ptr<system_exec> *system_exec_ptr, std::unique_ptr<text> *text_ptr, std::unique_ptr<button> *button, int *w, int *h): _draw{draw}, _icon_loader(icl), _system_exec(system_exec_ptr), _text_display(text_ptr), _button(button), _window_width{w}, _window_height{h}
 {
     // Corespond au radius de la fenetre a un instant t, au lancement du programme mis a 0
     ref_width = 0;
@@ -20,7 +22,7 @@ void files_display::display()
 
     // Si la taille de la fenetre a change, on recalcule les coordonnees des icones
     // Car refwidth et refheight ne sont plus égaux a la taille de la fenetre
-    if (ref_width != *_window_width || ref_height != *_window_height)
+    if (ref_width != *_window_width || ref_height != *_window_height || _refresh_button)
     {
         refresh_display_info();
     }
@@ -36,13 +38,25 @@ void files_display::display()
     size_t pos = file_name.find('\n',pos1);
     for (int nb_files = 0; nb_files < (file[0] + file[1]); nb_files++)
     {
+
+        if (nb_files == file[0])
+        {
+            id = "file";
+        }
+
         final =  file_name.substr(pos1, pos - pos1);
+
+        if (_refresh_button)
+        {
+            std::string button_id = "directory_and_file" + std::to_string(nb_files);
+            add_button_click(file_x, file_y, final, button_id);
+        }
+
         final.resize(30, ' ');
 
         button_display(file_x, file_y);
         icon_display(file_x, file_y, id);
         text_display(file_x, file_y, final);
-
 
         file_x++;
         pos1 = pos+1;
@@ -53,18 +67,48 @@ void files_display::display()
             file_y++;
         }
 
-        if (nb_files == file[0] - 1)
-        {
-            id = "file";
-        }
-
         if (file_y == max_number_of_files_h)
         {
             break;
         }
     }
 
+    if (_refresh_button) {
+        total_number_of_files = file[0] + file[1];
+        _refresh_button = false;
+    }
     (*_draw)->set_font_color();
+}
+
+void files_display::refresh_after_button_click(const std::string &id)
+{
+    std::string new_pwd = (*_system_exec)->return_pwd(Command_Option::NONE);
+    if (new_pwd.back() == '\n')
+        new_pwd.pop_back();
+
+    if (id.find(' ') != std::string::npos)
+        new_pwd += "/\"" + id + "\"";
+    else
+        new_pwd += "/" + id;
+
+    (*_system_exec)->set_pwd(new_pwd);
+
+    remove_all_file_and_directory_buttons();
+
+    _refresh_button = true;
+}
+
+void files_display::add_button_click(int file_x, int file_y, const std::string &id, const std::string &nb_id)
+{
+    (*_button)->create_button_by_id(nb_id, file_coord_x + (100 * file_x), file_coord_y + (130 * file_y), 80, 80, [this, id]() { refresh_after_button_click(id); });
+}
+
+void files_display::remove_all_file_and_directory_buttons()
+{
+    for (int nb_files = 0; nb_files < total_number_of_files; nb_files++)
+    {
+        (*_button)->delete_button_by_id("directory_and_file" + std::to_string(nb_files));
+    }
 }
 
 void files_display::button_display(int file_x, int file_y)
@@ -123,6 +167,9 @@ void files_display::refresh_display_info()
     // Coordonnees de la premiere icone
     file_coord_x = directory_arrow_x + file_centered_w;
     file_coord_y = directory_arrow_y + file_centered_h;
+
+    //auto func = [this]() { _system_exec->get()->set_pwd("/home/dell_nicolas/Documents"); };
+    //(*_button)->create_button_by_id("button1", file_coord_x, file_coord_y, 80, 80, [func]() { func(); });
 
     file_name = (*_system_exec)->return_ofl(Command_Option::Rewrite);
 }

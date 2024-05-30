@@ -16,23 +16,25 @@
         std::string _ls;
         std::string _ls_files;
         std::string ordered_file_list;
-        int file_count;
-        int directory_count;
+        int file_count{};
+        int directory_count{};
 
     public:
 
         system_exec();
         ~system_exec() = default;
 
-        std::string exe(std::string command);
+        static std::string exe(const std::string& command);
 
-        void refresh_pwd();
+        void refresh_pwd_style();
+        void set_default_pwd();
+        void set_pwd(const std::string& pwd);
         std::string return_pwd(Command_Option option);
 
         void refresh_ls();
         void refresh_ls_directory();
 
-        std::vector<int> return_file_and_directory_count();
+        [[nodiscard]] std::vector<int> return_file_and_directory_count() const;
         std::string return_ofl(Command_Option option); // ordered_file_list
     };
 

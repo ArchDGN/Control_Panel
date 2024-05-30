@@ -75,7 +75,7 @@ void draw::draw_text(std::unique_ptr<text> &text1, std::unique_ptr<system_exec> 
     int *w = _window_width;
     int *h = _window_height;
 
-    text1->draw_text(system_exec1->return_pwd(Command_Option::Rewrite), *w / 5 + 10, *h / 20 - 20, *w - (*w / 8 + 10), 40, Text_Property::Revert_Cut_With_Points, Text_Property::Fit_Screen);
+    text1->draw_text(system_exec1->return_pwd(Command_Option::Rewrite) + "  ", *w / 5 + 10, *h / 20 - 20, *w - (*w / 8 + 10), 40, Text_Property::Revert_Cut_With_Points, Text_Property::Fit_Screen);
 
 }
 

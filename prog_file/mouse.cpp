@@ -63,10 +63,7 @@ bool mouse::get_click_statue(int code)
 
 void mouse::update_position()
 {
-    if (SDL_MOUSEMOTION == (*_event).type)
-    {
-        SDL_GetMouseState(&_mouse_x, &_mouse_y);
-    }
+    SDL_GetMouseState(&_mouse_x, &_mouse_y);
 }
 
 void mouse::return_position(int *x, int *y)

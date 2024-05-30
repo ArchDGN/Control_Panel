@@ -1,28 +1,17 @@
-#include <iostream>
-#include <string>
-#include <memory>
-#include <vector>
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <iostream>
 #include <thread>
+#include <string>
 
 #include "../headerfile/window.hpp"
-#include "../headerfile/draw.hpp"
-#include "../headerfile/files_display.hpp"
-#include "../headerfile/button.hpp"
 
 void window::run_program()
 {
-
+    // Initialisation des objets de la fenetre
     initialize_program();
-
-    iconLoader->load_image_with_id("directory", "icon/directoryv2.png");
-    iconLoader->load_image_with_id("file", "icon/filev2.png");
-
-    // Objet: Affichage des fichiers
-    files_display set_files_display{draw_ptr, iconLoader_ptr, system_exec_ptr, text_ptr, _window_width, _window_height};
-    //
+    // Initialisation des images/icones
+    initialize_image();
 
     // Init des variables pour le calcul du nombre d'iteration par seconde, fps
     int count = 0;
@@ -48,7 +37,7 @@ void window::run_program()
             start_time = std::chrono::high_resolution_clock::now();
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000.0 / 120.0)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long>(1000.0 / 120.0)));
         // Fin de la partie
         //
 
@@ -66,11 +55,12 @@ void window::run_program()
             draw_on_window->set_font_color();
 
             button_control->check_all_buttons_clicked();    // Verifie si un bouton a ete clique
+            //std::cout << button_control->return_button_list_size() << std::endl;
 
             draw_on_window->draw_font();    // Affiche le font
             draw_on_window->draw_text(text1, system_exec1);    // Affiche le text
 
-            set_files_display.display();   // Affiche les fichiers
+            set_files_display->display();   // Affiche les fichiers
 
             SDL_RenderPresent(_renderer);   // Affiche le render
 
@@ -115,6 +105,16 @@ void window::initialize_program()
     draw_on_window = std::make_unique<draw>(_renderer, &_rect, _window_width, _window_height, Square_Color::Gray1);
     draw_ptr = &draw_on_window;
     //
+
+    // Objet: Affichage des fichiers
+    set_files_display = std::make_unique<files_display>(draw_ptr, iconLoader_ptr, system_exec_ptr, text_ptr, button_control_ptr, _window_width, _window_height);
+    //
+}
+
+void window::initialize_image()
+{
+    iconLoader->load_image_with_id("directory", "icon/directoryv2.png");
+    iconLoader->load_image_with_id("file", "icon/filev2.png");
 }
 
 
@@ -159,4 +159,14 @@ window::~window()
     }
 
     SDL_Quit();
+}
+
+void get_error (const std::string& error, const std::string& error_log, int code)
+{
+    std::cerr << error << error_log << std::endl;   // Affiche l'erreur ainsi que le log SDL associe
+
+    if (code != -1)     // Si l'erreur survient a l'initialisation de la sdl alors le code renvoyé est -1
+        SDL_Quit();     // Il n'y a donc pas besoin de quitter la sdl car elle na pas put s'initialiser
+    // Si la sdl a put s'initialiser et qu'une erreur survient apres le code renvoye est 0
+    exit(-1);
 }

@@ -13,7 +13,7 @@ button::button(std::unique_ptr<mouse> *mouse, int *window_width, int *window_hei
     _mouse_control = mouse;
 }
 
-void button::create_button_by_id(std::string id, int x, int y, int w, int h, void (*pointer_to_function)())
+void button::create_button_by_id(std::string id, int x, int y, int w, int h, std::function<void()> pointer_to_function)
 {
     Button button;
     button.id = std::move(id);
@@ -21,11 +21,11 @@ void button::create_button_by_id(std::string id, int x, int y, int w, int h, voi
     button.y = y;
     button.w = w;
     button.h = h;
-    button.pointer_to_function = pointer_to_function;
+    button.pointer_to_function = std::move(pointer_to_function);
     _button_list.push_back(button);
 }
 
-void button::edit_button_by_id(const std::string& id, int x, int y, int w, int h, void (*pointer_to_function)())
+void button::edit_button_by_id(const std::string& id, int x, int y, int w, int h, std::function<void()> pointer_to_function)
 {
     for (auto &i : _button_list)
     {
@@ -75,7 +75,7 @@ bool button::is_button_clicked(Button *button)
 bool button::check_all_buttons_clicked()
 {
     bool clicked = false;
-    if (!(*_mouse_control)->get_click_statue(SDL_BUTTON_LEFT))
+    if (!(*_mouse_control)->left_button_pressed())
     {
         return clicked;
     }
@@ -98,4 +98,8 @@ bool button::specific_button_clicked(const std::string &id) {
     }
 
     return false;
+}
+
+int button::return_button_list_size() const {
+    return int(_button_list.size());
 }
